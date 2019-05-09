@@ -2,7 +2,7 @@
 source("R/IBMfunctions.R")
 # FUNCTIONS: assign number of bites and if they get rabies (biteIDs)
 #	    assign serial intervals that get rabies
-#	    run model given a defined no of events, seeded cases, a population and an enddate
+#	    run model given a defined no of events, seeded cases, a population and an end date
 
 
 #PARAMETERS
@@ -37,11 +37,11 @@ eruns = pruns = matrix(ncol = nmonths, nrow = nruns) # matrices to store info on
 # test = runpopmodel(Nevents, seeds, population, end)
 
 #__________________________________________________________________________________
-#Now run simulation and calc size of outbreaks for diff vacc coverages
+#Now run simulation and calc size of outbreaks for diff vacc coverages (simulation output for Fig4a)
 #or run simulation to see probability of outbreaks at different vacc coverages
-	# using Negative binomial versus poission biters!!!
+	# using Negative binomial versus poission biters!
 
-# I'VE NOT TIMED THIS BUT TAKES A MIN OR AT EACH COVERAGE!
+# I'VE NOT TIMED THIS BUT TAKES A FEW MIN OR AT EACH COVERAGE! (so I ran overnight)
 nruns = 5000	# Set up for lots of epidemics
 eruns = pruns = matrix(ncol=nmonths, nrow=nruns)
 
@@ -50,7 +50,7 @@ cases=20					# Set up matrix of Probability of outbreak from 1-20 cases
 pOB = matrix(nrow=cases, ncol=length(vaccrange))
 Osizes = matrix(nrow=length(vaccrange), ncol=nruns)
 
-
+# system.time(  # remove comments and run this outside of the loop to check the times!
 for (i in 1:length(vaccrange)){
 	for (j in 1:nruns){
 		population=makepopulation(500, vaccrange[i])
@@ -67,15 +67,19 @@ for (i in 1:length(vaccrange)){
 #	for (k in 1:cases){pOB[k,i]=length(which(apply(eruns,1,sum)>k))/nruns}
 	Osizes[i,] = apply(eruns,1,sum)
 }
+#)
 
-write.csv(Osizes, file="output/outbreaksizes.csv", row.names = FALSE)
+write.csv(Osizes, file="outputs/outbreaksizes.csv", row.names = FALSE)
 # pOB=pOB[,-c(98, 99, 100)] #get rid of NAs
 #write.csv(pOB, file="pOutbreak2.csv", row.names = FALSE)#NEGATIVE BINOMIAL
 #write.csv(pOB, file="pOutbreakPoisson.csv", row.names = FALSE)#POISSON
 
 
+
+
 #__________________________________________________________________________________
-#Run epidemic repeatedly - with no vaccination coverage - store runs in matrix
+# Simulation output for stuff AFTER Fig 4a - to be checked still!
+# Run epidemic repeatedly - with no vaccination coverage - store runs in matrix
 # Then run curve fit to test the effect of sampling
 Nevents = 2000; end=500		#No. events to monitor; endate to stop simulation
 nruns=1000; nmonths=length(seq(0, end+30, 30.5))	#No. epidemics to run and no. months

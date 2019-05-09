@@ -4,15 +4,15 @@
 # Outbreak size simulation data
 osizes = read.csv("outputs/outbreaksizes.csv", header=T) # use 10,000 runs for smoothing
 # osizes=cbind(osizes2, osizes3, osizes4, osizes5) # RAN MULTIPLE TIMES
-osizes = osizes[-100,]
+osizes = osizes[-100,] # Remove the runs that just didn't take off
 meansize = apply(osizes, 1, mean)
-size97.5 = apply(osizes, 1, quantile, 0.975)
-size95 = apply(osizes, 1, quantile, 0.95)
-size90 = apply(osizes, 1, quantile, 0.90)
-size75 = apply(osizes, 1, quantile, 0.75)
-size50 = apply(osizes, 1, quantile, 0.5)
-size25 = apply(osizes, 1, quantile, 0.25)
-size0.25 = apply(osizes, 1, quantile, 0.025)
+size97.5 = apply(osizes, 1, quantile, 0.975, na.rm=TRUE)
+size95 = apply(osizes, 1, quantile, 0.95, na.rm=TRUE)
+size90 = apply(osizes, 1, quantile, 0.90, na.rm=TRUE)
+size75 = apply(osizes, 1, quantile, 0.75, na.rm=TRUE)
+size50 = apply(osizes, 1, quantile, 0.5, na.rm=TRUE)
+size25 = apply(osizes, 1, quantile, 0.25, na.rm=TRUE)
+size0.25 = apply(osizes, 1, quantile, 0.025, na.rm=TRUE)
 
 maxcases = 40
 covmax = 99
@@ -22,12 +22,6 @@ for (i in 1:maxcases){
   prop2[i,] = apply (osizes, 1, function(x) length(which(x<i))/runs)
   print(i)
 }
-
-
-# Outbreak size data from Serengeti and Ngorongoro
-outbreaks = read.csv("outputs/Serengeti_outbreaks_2002_2007.csv")
-outbreaks = read.csv("outputs/Ngorongoro_outbreaks_2002_2007.csv")
-
 
 # postscript(file = "figs/vacc_image.eps", width = 8, height = 4)
 par(mfrow = c(1,1), cex = 0.7, lwd = 0.4, tck = -0.005, mgp = c(1,0.2,0),
@@ -42,18 +36,25 @@ axis(1,lwd=0.5); axis(2,lwd=0.5)
 
 contour(x = 0:98, y = 2:35, t(prop2)[1:99,2:35], levels = c(0.50,0.75,0.90,0.95,0.99),
         add = TRUE, method="edge", labcex = 0.4, lwd = 0.5)
-points(coverage, jitter(outbreaks$ncases), pch = 20, col="blue") # Serengeti
-points(coverage2, jitter(outbreaks2$ncases), pch = 20, col="red") # Ngorongoro
 
+# Outbreak size data from Serengeti and Ngorongoro
+outbreaks = read.csv("data/Serengeti_outbreaks_2002_2007.csv")
+outbreaks2 = read.csv("data/Ngorongoro_outbreaks_2002_2007.csv")
+points(outbreaks$coverage*100, jitter(outbreaks$ncases), pch = 20, col="blue") # Serengeti
+points(outbreaks2$coverage*100, jitter(outbreaks2$ncases), pch = 20, col="red") # Ngorongoro
 
-# Also plot an example village and the timing of outbreaks e.g. Mosongo
+########################################################################
+
+# plot an example village and the timing of outbreaks e.g. Mosongo
+# I've not cleaned this up yet because the raw data are not de-identified
+# 9/May/19 - I'll extract de-identified data and work through the rest of this over the next few days!
+
 NYpop = calcsus2(VPDsd$Village, dogs, vday, vaccnos, VPDsd$Vill[21])
 NYcov = 100*(NYpop[,3]/apply(NYpop[,2:3], 1, sum))
 NYcases = rabid$Sstart[rabid$Village=="Mosongo"]
 NYmonthly = hist(NYcases, breaks=0:217, plot=FALSE)$counts[145:204]
 xlabels = rep("",11)
 xlabels[seq(2,10,2)] = 2002:2006
-
 
 par(new=T, yaxs="i", xaxs="i", plt=c(0.38, 0.58, 0.69, 0.96), cex=0.45, mgp=c(0.7,0.1,0))
 plot(NYpop[,1], NYcov,
@@ -66,6 +67,8 @@ axis(2, mgp=c(0.5,0.1,0), lwd=0.5)
 par(new=T); barplot(NYmonthly, xlim=c(0,60*1.2), ylim=c(0,8), axes=FALSE)
 axis(4, lwd=0.5)
 mtext("Cases per month", 4, line=1, cex=0.5)
+
+
 
 # Plot secondary cases/dog & P(preventing an outbreak) vs vaccination coverage:
 par(new=T, yaxs="r", xaxs="i", 	plt=c(0.65, 0.95, 0.55, 0.98), cex=0.7, mgp=c(1.5, 0.2, 0))
@@ -95,11 +98,6 @@ legend(x=50, y=0.4, legend=c("5+ cases","10+ cases", "20+ cases"), bty="n",
        col=c("black", "orange", "forest green"), lty=c(1,1,1), lwd=c(2,2,2))
 #lines(0:100, rep(0.95, 101), col="gray")
 # dev.off()
-
-
-
-
-
 
 
 # postscript(file = "figs/vacc.eps", width=3, height=5, horizontal=F)
