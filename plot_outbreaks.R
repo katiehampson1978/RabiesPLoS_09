@@ -1,6 +1,10 @@
 # plot 4A from Hampson et al. 2009
 # https://journals.plos.org/plosbiology/article?id=10.1371/journal.pbio.1000053
 
+# Outbreak size data from Serengeti and Ngorongoro
+outbreaks = read.csv("data/Serengeti_outbreaks_2002_2007.csv")
+outbreaks2 = read.csv("data/Ngorongoro_outbreaks_2002_2007.csv")
+
 # Outbreak size simulation data
 osizes = read.csv("outputs/outbreaksizes.csv", header=T) # use 10,000 runs for smoothing
 # osizes=cbind(osizes2, osizes3, osizes4, osizes5) # RAN MULTIPLE TIMES
@@ -23,25 +27,27 @@ for (i in 1:maxcases){
   print(i)
 }
 
-# postscript(file = "figs/vacc_image.eps", width = 8, height = 4)
+# Plot Fig 4A:
+postscript(file = "figs/vacc_image.eps", width = 8, height = 4)
 par(mfrow = c(1,1), cex = 0.7, lwd = 0.4, tck = -0.005, mgp = c(1,0.2,0),
     plt = c(0.1, 0.6, 0.1, 0.97), yaxs = "r", xaxs = "i")
 
+# Background shading
 image(x=0:98, y=2:40, t(prop2)[1:99,2:40],
       col=gray(0:100/100)[21:100], bty="n",
       xlab="Population-level immunity from vaccination (%)", ylab="Outbreak size",
       ylim=c(1.5,35))
-
 axis(1,lwd=0.5); axis(2,lwd=0.5)
+# THINK I SHORTENED THE FIG TO GO UP TO 90% COVERAGE! But have not fixed the aesthetics here yet!
 
+# Contours
 contour(x = 0:98, y = 2:35, t(prop2)[1:99,2:35], levels = c(0.50,0.75,0.90,0.95,0.99),
         add = TRUE, method="edge", labcex = 0.4, lwd = 0.5)
 
-# Outbreak size data from Serengeti and Ngorongoro
-outbreaks = read.csv("data/Serengeti_outbreaks_2002_2007.csv")
-outbreaks2 = read.csv("data/Ngorongoro_outbreaks_2002_2007.csv")
+# Data on outbreaks in Serengeti and Ngorongoro
 points(outbreaks$coverage*100, jitter(outbreaks$ncases), pch = 20, col="blue") # Serengeti
 points(outbreaks2$coverage*100, jitter(outbreaks2$ncases), pch = 20, col="red") # Ngorongoro
+dev.off()
 
 ########################################################################
 
